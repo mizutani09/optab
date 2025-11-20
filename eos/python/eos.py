@@ -1,3 +1,4 @@
+# %%
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +16,9 @@ def read_dataset(file, name):
     Read and return the dataset from an HDF5 file.
     """
     with h5py.File(file, 'r') as h5file:
+        if name == 'n_layer':
+            for key in h5file.keys():
+                print(f"{key}, Shape: {h5file[key].shape}, Dtype: {h5file[key].dtype}")
         return h5file[name][()]
 
 def plot_data(fname, variable, syms):
@@ -27,6 +31,20 @@ def plot_data(fname, variable, syms):
     pres = read_dataset(fname, 'pres')
     rho = read_dataset(fname, 'rho')
     ndens = read_dataset(fname, 'ndens')
+    
+    print("temp shape:", temp.shape)
+    print("pres shape:", pres.shape)
+    print("rho shape:", rho.shape)
+    print("ndens shape:", ndens.shape)
+    
+    # count identical temperatures
+    unique_temps = np.unique(temp)
+    print(f"Number of unique temperatures: {len(unique_temps)}")
+    unique_pressures = np.unique(pres)
+    print(f"Number of unique pressures: {len(unique_pressures)}")
+    unique_densities = np.unique(rho)
+    print(f"Number of unique densities: {len(unique_densities)}")
+    return
     
     # Calculate the variable to be plotted and its range
     if variable == 'rho':
@@ -68,7 +86,8 @@ def main():
     """
     Main function to execute the script.
     """
-   
+    plot_data('../FastChem/table.h5', 'rho', syms=100)
+    return
     # Define the filename and variable to plot
     parser = argparse.ArgumentParser(description='Plot data from an HDF5 file.')
     parser.add_argument('filename', type=str, help='Name of the HDF5 file.')

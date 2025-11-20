@@ -1,6 +1,6 @@
 &switches ! selection of opacity sources
 line_molecules = 1           ! molecular lines
-line_kurucz_gfpred = 1       ! Kurucz gfpred lines
+line_kurucz_gfpred = 0       ! Kurucz gfpred lines
 line_kurucz_gfall = 1        ! Kurucz gfall lines
 rayleigh_scattering_h2 = 1   ! Rayleigh scattering by H2
 rayleigh_scattering_he = 1   ! Rayleigh scattering by He
@@ -34,7 +34,7 @@ grd_max = 9d0    ! max value of wavenumber grid
 kprc = 1  ! number of processes in wavenumber grid (EXPERIMENTAL)
 lprc = 1  ! number of processes in line loop (EXPERIMENTAL)
 mprc = 1  ! number of processes in reading line-block loop (EXPERIMENTAL)
-jprc = 12  ! number of processes in layer loop
+jprc = 8  ! number of processes in layer loop
 /
 &block_cyclic
 iblock = 1

@@ -1,13 +1,13 @@
 ### SYSTEM DEPENDENT SECTION ###
-OPENMPI = /opt/local
-HDF5 = /opt/local
+OPENMPI = /usr/local
+HDF5 = /usr/local/hdf5_par
 
 FFLAGS  = -fallow-argument-mismatch -Wall -O3 #-fbounds-check
 
 ### SYSTEM INDEPENDENT SECTION
 SHELL = /bin/sh
 
-H5PFC = false
+H5PFC = true
 ifeq ($(H5PFC),true)
 FC = $(HDF5)/bin/h5pfc
 else
