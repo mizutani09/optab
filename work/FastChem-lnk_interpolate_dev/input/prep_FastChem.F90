@@ -3,8 +3,8 @@
 
 #define ATOMIC_IONS
 #define FASTCHEM_ORIGINAL
-#define OPTAB_DATABASE_DIR "/S/data00/G5106/y0582/database/"
-#define FASTCHEM_INPUT_DIR "/S/home01/G5106/y0582/FastChem/input/"
+#define OPTAB_DATABASE_DIR "/home/kosuke/simulation/optab/database/"
+#define FASTCHEM_INPUT_DIR "/home/kosuke/simulation/FastChem/input/"
 
 PROGRAM prep_FastChem
 

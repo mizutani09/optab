@@ -88,6 +88,7 @@ urls_and_files = [
 
 # Set up Chrome options
 chrome_options = Options()
+chrome_options.binary_location = "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 chrome_options.add_argument(f"user-data-dir={USER_PROFILE_DIR}")
 
 # Ensure the directory exists where files will be saved

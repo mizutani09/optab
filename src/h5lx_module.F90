@@ -26,7 +26,9 @@ CONTAINS
     INTEGER(HID_T) :: plist_id
 
     CALL h5pcreate_F(H5P_FILE_ACCESS_F, plist_id, error)
+#ifdef MPIO
     CALL h5pset_fapl_mpio_f(plist_id, comm, info, error)
+#endif
     CALL h5Fopen_f(filename, access_flag, file_spec, error, plist_id)
     CALL h5Pclose_f(plist_id, error)
     

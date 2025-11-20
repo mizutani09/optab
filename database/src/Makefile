@@ -1,8 +1,8 @@
 
 SHELL = /bin/sh
 
-OPENMPI = /opt/local
-HDF5 = /opt/local
+OPENMPI = /usr/local
+HDF5 = /usr/local/hdf5_par
 FFLAGS  = -Wall -fbounds-check
 
 FC = $(OPENMPI)/bin/mpif90
