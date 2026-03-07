@@ -28,18 +28,27 @@ def opac(dir_path, mean, syms):
     tmp_tot = np.array([data['temp'] for data in datasets])
     rho_tot = np.array([data['rho'] for data in datasets])
     pre_tot = np.array([data['nden'] * K_BOL * data['temp'] for data in datasets])
-    ros_tot = np.log10(np.array([data['ros'] for data in datasets]) / rho_tot)
-    pla_tot = np.log10(np.array([data['plac'] + data['plal'] for data in datasets]) / rho_tot)
-    pla2_tot = np.log10(np.array([data['plac2'] + data['plal2'] for data in datasets]) / rho_tot)
+    ros = np.array([data['ros'] for data in datasets]) / rho_tot
+    pla = np.array([data['plac'] + data['plal'] for data in datasets]) / rho_tot
+    pla2 = np.array([data['plac2'] + data['plal2'] for data in datasets]) / rho_tot
+    ros_tot = np.full_like(ros, np.nan, dtype=np.float64)
+    pla_tot = np.full_like(pla, np.nan, dtype=np.float64)
+    pla2_tot = np.full_like(pla2, np.nan, dtype=np.float64)
+    m_ros = ros > 0.0
+    m_pla = pla > 0.0
+    m_pla2 = pla2 > 0.0
+    ros_tot[m_ros] = np.log10(ros[m_ros])
+    pla_tot[m_pla] = np.log10(pla[m_pla])
+    pla2_tot[m_pla2] = np.log10(pla2[m_pla2])
 
     # Color scaling for visualization
     vmax, vmin = 7.0, -6.0
 
     # Title and label mapping
     titles = {
-        'ross': ('Rosseland-mean opacity', 'log $\kappa$ [cm$^2$/g]'),
-        'pla': ('Planck-mean opacity', 'log $\kappa$ [cm$^2$/g]'),
-        'pla2': (f'Planck-mean opacity at T_rad={int(tmp2[0])}K', 'log $\kappa$ [cm$^2$/g]')
+        'ross': ('Rosseland-mean opacity', r'log $\kappa$ [cm$^2$/g]'),
+        'pla': ('Planck-mean opacity', r'log $\kappa$ [cm$^2$/g]'),
+        'pla2': (f'Planck-mean opacity at T_rad={int(tmp2[0])}K', r'log $\kappa$ [cm$^2$/g]')
     }
 
     if mean not in titles:

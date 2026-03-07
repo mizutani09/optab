@@ -1,6 +1,11 @@
 ### SYSTEM DEPENDENT SECTION ###
+<<<<<<< Updated upstream
 OPENMPI = /usr/local
 HDF5 = /usr/local/hdf5_par
+=======
+OPENMPI = /usr
+HDF5 = /usr
+>>>>>>> Stashed changes
 
 FFLAGS  = -fallow-argument-mismatch -Wall -O3 #-fbounds-check
 

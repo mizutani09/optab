@@ -1,13 +1,23 @@
 
 SHELL = /bin/sh
 
+<<<<<<< Updated upstream
 OPENMPI = /usr/local
 HDF5 = /usr/local/hdf5_par
+=======
+OPENMPI = /usr
+HDF5 = /usr
+>>>>>>> Stashed changes
 FFLAGS  = -Wall -fbounds-check
 
-FC = $(OPENMPI)/bin/mpif90
+# FC = $(OPENMPI)/bin/mpif90
+# FFLAGS  += -O3 -I$(HDF5)/include
+# LDFLAGS  = -L$(HDF5)/lib -lhdf5 -lhdf5_hl -lhdf5_fortran -lhdf5_hl_fortran
+
+FC = $(HDF5)/bin/h5pfc
 FFLAGS  += -O3 -I$(HDF5)/include
-LDFLAGS  = -L$(HDF5)/lib -lhdf5 -lhdf5_hl -lhdf5_fortran -lhdf5_hl_fortran
+LDFLAGS  =
+
 
 #FFLAGS += -DDIRNIST=\'$(DIRNIST)\'
 #FFLAGS += -DDIRH5=\'$(DIRH5)\'

@@ -1,12 +1,22 @@
 SHELL = /bin/sh
 
+<<<<<<< Updated upstream
 HDF5 = /usr/local/hdf5_par
 OPENMPI = /usr/local
+=======
+HDF5 = /usr
+OPENMPI = /usr
+>>>>>>> Stashed changes
 FFLAGS = -Wall #-fbounds-check
 
-FC = $(OPENMPI)/bin/mpif90
+# FC = $(OPENMPI)/bin/mpif90
+# FFLAGS  += -O3 -I$(HDF5)/include
+# LDFLAGS  = -L$(HDF5)/lib -lhdf5 -lhdf5_hl -lhdf5_fortran -lhdf5_hl_fortran
+
+FC = $(HDF5)/bin/h5pfc
 FFLAGS  += -O3 -I$(HDF5)/include
-LDFLAGS  = -L$(HDF5)/lib -lhdf5 -lhdf5_hl -lhdf5_fortran -lhdf5_hl_fortran
+LDFLAGS  =
+
 BIN = .
 
 all: convert_Phoenix convert_TEA convert_FastChem

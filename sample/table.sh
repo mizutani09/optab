@@ -2,11 +2,19 @@
 
 set -x -e
 
+<<<<<<< Updated upstream
 export EOS=$OPTAB/eos/FastChem/table.h5
 export OPTAB=$OPTAB
 export DATABASE=$OPTAB/database
 export MPIBIN='/usr/local/bin'
 
+=======
+export EOS='/home/kosuke/simulation/optab/eos/FastChem/table_detail3.h5'
+export OPTAB='/home/kosuke/simulation/optab'
+export DATABASE='/home/kosuke/simulation/optab/database'
+export MPIBIN='/usr/bin'
+  
+>>>>>>> Stashed changes
 
 ##### DIRECTORIES
 export WORKDIR=`basename "$0" | sed -e 's/.sh//'`
@@ -283,19 +291,28 @@ EOF
 ##### SELECT OPACITY SOURCES TO BE CONSIDERED (1: SELECTED, 0: NOT SELECTED)
 cat <<EOF > input/fort.5
 &switches ! selection of opacity sources
+<<<<<<< Updated upstream
 line_molecules = 1           ! molecular lines
 line_kurucz_gfpred = 0       ! Kurucz gfpred lines
 line_kurucz_gfall = 1        ! Kurucz gfall lines
 rayleigh_scattering_h2 = 1   ! Rayleigh scattering by H2
 rayleigh_scattering_he = 1   ! Rayleigh scattering by He
 rayleigh_scattering_h = 1    ! Rayleigh scattering by H
+=======
+line_molecules = 0           ! molecular lines
+line_kurucz_gfpred = 0       ! Kurucz gfpred lines
+line_kurucz_gfall = 0        ! Kurucz gfall lines
+rayleigh_scattering_h2 = 0   ! Rayleigh scattering by H2
+rayleigh_scattering_he = 0   ! Rayleigh scattering by He
+rayleigh_scattering_h = 0    ! Rayleigh scattering by H
+>>>>>>> Stashed changes
 electron_scattering = 1      ! electron scattering
 cia = 0                      ! Collision-induced absorption (EXPERIMENTAL)
-photoion_h2 = 1              ! Photoionization by H2
+photoion_h2 = 0              ! Photoionization by H2
 photoion_topbase = 0         ! TOPbase photoionization
-photoion_mathisen = 1        ! Mathisen photoionization
-photoion_verner = 1          ! Verner photoionization
-photoion_h_minus = 1         ! Photoionization by H-
+photoion_mathisen = 0        ! Mathisen photoionization
+photoion_verner = 0          ! Verner photoionization
+photoion_h_minus = 0         ! Photoionization by H-
 brems_h_minus = 1            ! Bremsstrahlung by H-
 brems_h2_minus = 1           ! Bremsstrahlung by H2-
 brems_atomicions = 1         ! Bremsstrahlung by atomic ions
