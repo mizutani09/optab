@@ -214,6 +214,7 @@ PROGRAM main
         ALLOCATE(out(ks:ke,js:je,NA:NA))
         fac_0 = SQRT(8d0 * alpha**6 * hbar**4 / (27d0 * pi * clight**2 * k_bol**3 * m_ele**3))
         DO z = 1, (ZnI/100)
+           CALL brems_atom_vanHoof_2014(temp1(js:je), grd(:), out(:,js:je,NA), z - ne)
            DO ne = 0, z - 1
               CALL brems_atom_vanHoof_2014(temp1(js:je), grd(:), out(:,js:je,NA), z - ne)
               code = z * 100 + (z - ne)

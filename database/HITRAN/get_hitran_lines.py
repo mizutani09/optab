@@ -20,6 +20,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 import requests
 import os
 import argparse
+import zipfile
+import io
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description='Download HITRAN data.')
@@ -82,9 +84,17 @@ urls_and_files = [
     ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=144&vib_bands=&numin=0&numax=', '51_HITRAN.par'),
     ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=139%2C140%2C141%2C142%2C143&vib_bands=&numin=0&numax=', '52_HITRAN.par'),
     ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=131%2C132%2C133%2C134&vib_bands=&numin=0&numax=', '53_HITRAN.par'),
-    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=145&vib_bands=&numin=0&numax=', '54_HITRAN.par')
-    # Add more tuples here for each URL and target file name
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=145&vib_bands=&numin=0&numax=', '54_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=158&vib_bands=&numin=0&numax=', '56_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=159&vib_bands=&numin=0&numax=', '57_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=152&vib_bands=&numin=0&numax=', '58_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=153%2C154&vib_bands=&numin=0&numax=', '59_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=157&vib_bands=&numin=0&numax=', '60_HITRAN.par'),
+    ('https://hitran.org/lbl/5?output_format_id=1&iso_ids_list=155%2C156&vib_bands=&numin=0&numax=', '61_HITRAN.par')
 ]
+
+# Molecules available only as static zip files
+zip_mol_ids = [30, 35, 42, 55]
 
 # Set up Chrome options
 chrome_options = Options()
@@ -96,6 +106,10 @@ os.makedirs('original', exist_ok=True)
 
 # Iterate over the URL and filename pairs
 for URL, parfile in urls_and_files:
+    filepath = os.path.join('original', parfile)
+    if os.path.exists(filepath):
+        print(f'Skipping {filepath} (already exists).')
+        continue
     # Set up the WebDriver with a new Service object each time
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -126,5 +140,41 @@ for URL, parfile in urls_and_files:
     finally:
         driver.quit()
 
-import subprocess        
-subprocess.run(['bash', 'get_hitran_LBL.sh'])
+# Download and extract static zip files (requires authentication)
+zip_targets = [mol_id for mol_id in zip_mol_ids
+               if not os.path.exists(os.path.join('original', f'{mol_id:02d}_HITRAN.par'))]
+
+if zip_targets:
+    # Use Selenium to obtain session cookies
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.get('https://hitran.org/')
+    cookies = {c['name']: c['value'] for c in driver.get_cookies()}
+    driver.quit()
+
+    session = requests.Session()
+    session.cookies.update(cookies)
+
+    for mol_id in zip_targets:
+        parfile = f'{mol_id:02d}_HITRAN.par'
+        filepath = os.path.join('original', parfile)
+
+        zip_url = f'https://hitran.org/files/LBLstatic/{mol_id}/{mol_id}_hit24.zip'
+        print(f'Downloading {zip_url} ...')
+        response = session.get(zip_url)
+        if response.status_code == 200:
+            with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
+                # Find the .par file inside the zip
+                par_files = [n for n in zf.namelist() if n.endswith('.par')]
+                if par_files:
+                    # Extract and rename to XX_HITRAN.par
+                    with zf.open(par_files[0]) as src, open(filepath, 'wb') as dst:
+                        dst.write(src.read())
+                    print(f'File extracted and saved to {filepath}.')
+                else:
+                    print(f'No .par file found in {zip_url}.')
+        else:
+            print(f'Failed to download {zip_url} (status {response.status_code}).')
+else:
+    print('All zip files already exist, skipping.')
+

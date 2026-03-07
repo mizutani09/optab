@@ -11,10 +11,10 @@ This directory houses the opacity databases utilized by Optab.
 - This directory serves as the repository for HDF5-formatted files created for `optab`.
 
 ### `1016620_Supplementary_Data/`
-- This directory contains the free-free Gaunt factor data authored by [van Hoof et al. (2014)](https://academic.oup.com/mnras/article/444/1/420/1016620).
-1. Download their [supplementary data](https://academic.oup.com/mnras/article/444/1/420/1016620#supplementary-data) and extract it in this directory.
+- This directory contains the free-free Gaunt factor data authored by [van Hoof et al. (2014)](https://academic.oup.com/mnras/article/444/1/420/1016620), sourced from [data.nublado.org](https://data.nublado.org/gauntff/).
    ```bash
-   unzip ~/Downloads/1016620_Supplementary_Data.zip -d 1016620_Supplementary_Data
+   cd 1016620_Supplementary_Data/
+   bash get_gauntff.sh
    ```
 
 ### `Karzas_Latter_1961.tsv`
@@ -22,9 +22,10 @@ This directory houses the opacity databases utilized by Optab.
 
 ### `photo/`
 - This directory stores [Verner's photoionization cross sections data](https://www.pa.uky.edu/~verner/photo.html).
-1. Copy all files in https://www.pa.uky.edu/~verner/dima/photo/ into this directory.
+1. Copy `photo.dat` and `table1.dat` from the site.
    ```bash
-   wget -r -np -nH --cut-dirs=3 -P photo -R "index.html*" https://www.pa.uky.edu/~verner/dima/photo/
+   cd photo/
+   bash get_photo.sh
    ```
 
 ### `TOPbase/`
@@ -42,7 +43,7 @@ This directory houses the opacity databases utilized by Optab.
    ```bash
    cd NIST/
    ```
-1. Execute `get_nist_parallel.py` to retrieve the level/atomic data and convert them to a specific HDF5 format for `Optab` (**REQUIREMENT: [`lynx`](https://lynx.invisible-island.net/)**):
+1. Execute `get_nist_parallel.py` to retrieve the level/atomic data and convert them to a specific HDF5 format for `Optab`:
    ```bash
    python3 get_nist_parallel.py
    ```
@@ -68,11 +69,20 @@ This directory houses the opacity databases utilized by Optab.
       >NOTE:
       >- If you are redirected to the registration page, register or log in. Then, exit Chrome and restart the process.
       >- Alternatively, you can download the linelists manually; refer to the instructions provided within the code.
-   1. [`HITEMP`](https://hitran.org/hitemp/)
-      [Under Construction]
+   1. [`HITEMP`](https://hitran.org/hitemp/) (**REQUIREMENT: Google Chrome, selenium (Python package), webdriver_manager (Python package)**):
+
+      ```bash
+      python3 get_hitemp_lines.py "/Users/shirose/Library/Application\ Support/Google/Chrome/Default"
+      ```
+      The required argument is your Chrome user profile directory. To find this, visit chrome://version in Chrome.
+      Available molecules: H2O, CO2, N2O, CO, CH4, NO, NO2, OH.
+
+      >NOTE:
+      >- If you are redirected to the registration page, register or log in. Then, exit Chrome and restart the process.
 1. Create individual .par files for each isotopologue and convert them to HDF5 files ready for optab:
    ```bash
    bash preproc_and_convert_HITRAN.sh
+   bash preproc_and_convert_HITEMP.sh
    ```
 
 ### `Kurucz/`
