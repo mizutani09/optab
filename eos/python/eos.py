@@ -44,7 +44,7 @@ def plot_data(fname, variable, syms):
     print(f"Number of unique pressures: {len(unique_pressures)}")
     unique_densities = np.unique(rho)
     print(f"Number of unique densities: {len(unique_densities)}")
-    return
+    # return
     
     # Calculate the variable to be plotted and its range
     if variable == 'rho':
@@ -86,8 +86,8 @@ def main():
     """
     Main function to execute the script.
     """
-    plot_data('../FastChem/table.h5', 'rho', syms=100)
-    return
+    # plot_data('../FastChem/withline_101_101.h5', 'rho', syms=100)
+    # return
     # Define the filename and variable to plot
     parser = argparse.ArgumentParser(description='Plot data from an HDF5 file.')
     parser.add_argument('filename', type=str, help='Name of the HDF5 file.')

@@ -1,3 +1,3 @@
-'table_detail3'	label
-2.5d0, 6.0d0, 11	tmin, tmax, lmax
+'withline_11_11_verylowtemp_lnK'	label
+1.85d0, 1.90d0, 11	tmin, tmax, lmax
 -8.0d0, 14.5d0, 11		pmin, pmax, jmax

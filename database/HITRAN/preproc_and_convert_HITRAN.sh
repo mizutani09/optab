@@ -2,7 +2,7 @@
 
 mkdir -p decomp
 
-for file in original/*.par
+for file in original/*_HITRAN.par
 do
     echo ""
     echo "*** $file ****"

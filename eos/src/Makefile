@@ -1,12 +1,7 @@
 SHELL = /bin/sh
 
-<<<<<<< Updated upstream
-HDF5 = /usr/local/hdf5_par
-OPENMPI = /usr/local
-=======
 HDF5 = /usr
 OPENMPI = /usr
->>>>>>> Stashed changes
 FFLAGS = -Wall #-fbounds-check
 
 # FC = $(OPENMPI)/bin/mpif90

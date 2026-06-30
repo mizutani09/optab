@@ -2,7 +2,7 @@
 
 set -x -e
 
-export EOS=$OPTAB/eos/FastChem/table.h5
+export EOS='/home/kosuke/simulation/optab/eos/FastChem/table.h5'
 export OPTAB=$OPTAB
 export DATABASE=$OPTAB/database
 export MPIBIN='/usr/bin'

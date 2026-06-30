@@ -56,7 +56,11 @@ CONTAINS
        ELSE
           comp = 0d0
        END IF
-       comp_iso(an,mn) = comp
+       ! New NIST dumps may contain isotopes outside the preallocated mass-number range.
+       ! Ignore out-of-range entries to avoid bounds errors during conversion.
+       IF(mn >= LBOUND(comp_iso,2) .AND. mn <= UBOUND(comp_iso,2)) THEN
+          comp_iso(an,mn) = comp
+       END IF
        READ(10,'(A25,A20)') dummy, smass_c
        IF(smass_c /= a20) THEN
           IF(INDEX(smass_c,'[') == 0) THEN

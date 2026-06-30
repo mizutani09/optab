@@ -22,9 +22,11 @@ PROGRAM prep_FastChem
   REAL(REAL64), PARAMETER :: tmp_threshold = 1d4
   INTEGER :: lmax, l, na, ni, ab, lnk_max, iostat, j, jmax
   INTEGER, PARAMETER :: max_line_len = 1024
+  LOGICAL :: has_master_logk, has_old_logk_ext, has_old_logk
   CHARACTER(MAX_LINE_LEN) :: linebuf
   CHARACTER :: species*16
   CHARACTER*64 :: fname_config, fname_tpgrid, fname_output, fname_output_monitor, fname_species, dname_lnK, id
+  CHARACTER*128 :: source_logk_file
   CHARACTER :: cna*3, cni*2, fname*32, cnia*3, cnib*3, csign*1, fname_pf*32
   CHARACTER(LEN=2), PARAMETER, DIMENSION(92) :: &
        celem = ['H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne', &
@@ -66,8 +68,22 @@ PROGRAM prep_FastChem
 !  tmp_min = 2.5d0
 !  tmp_max = 6d0
   
-  CALL SYSTEM('mkdir '//FASTCHEM_INPUT_DIR//'lnK_'//id)
-  CALL SYSTEM('mkdir '//FASTCHEM_INPUT_DIR//'../output')
+  CALL SYSTEM('mkdir -p '//FASTCHEM_INPUT_DIR//'lnK_'//id)
+  CALL SYSTEM('mkdir -p '//FASTCHEM_INPUT_DIR//'../output')
+
+  INQUIRE(FILE=FASTCHEM_INPUT_DIR//'logK/logK.dat', EXIST=has_master_logk)
+  INQUIRE(FILE=FASTCHEM_INPUT_DIR//'logK_ext.dat', EXIST=has_old_logk_ext)
+  INQUIRE(FILE=FASTCHEM_INPUT_DIR//'logK.dat', EXIST=has_old_logk)
+
+  IF (has_master_logk) THEN
+     source_logk_file = FASTCHEM_INPUT_DIR//'logK/logK.dat'
+  ELSEIF (has_old_logk_ext) THEN
+     source_logk_file = FASTCHEM_INPUT_DIR//'logK_ext.dat'
+  ELSEIF (has_old_logk) THEN
+     source_logk_file = FASTCHEM_INPUT_DIR//'logK.dat'
+  ELSE
+     STOP 'ERROR: No FastChem logK source file found.'
+  END IF
 
   fname_config = 'config.input_'//TRIM(id)
   fname_tpgrid = 'tpgrid_'//TRIM(id)//'.dat'
@@ -78,37 +94,73 @@ PROGRAM prep_FastChem
 
   PRINT *, 'configuration file:', TRIM(fname_config)
   ! CONFIGURATION FILE
-  OPEN(1, FILE=FASTCHEM_INPUT_DIR//TRIM(fname_config), RECL=max_line_len)
+  OPEN(1, FILE=FASTCHEM_INPUT_DIR//TRIM(fname_config), STATUS='REPLACE', ACTION='WRITE', RECL=max_line_len)
   WRITE(1,*) '#Atmospheric profile input file'
   WRITE(1,*) 'input/'//TRIM(fname_tpgrid)
   WRITE(1,*) ''
-  WRITE(1,*) '#Chemistry output file'
-  WRITE(1,*) 'output/'//TRIM(fname_output)
-  WRITE(1,*) ''
-  WRITE(1,*) '#Monitor output file'
-  WRITE(1,*) 'output/'//TRIM(fname_output_monitor)
-  WRITE(1,*) ''
-  WRITE(1,*) '#FastChem console verbose level (1 - 4); 1 = almost silent, 4 = detailed console output'
-  WRITE(1,*) '4'
-  WRITE(1,*) ''
-  WRITE(1,*) '#Output mixing ratios (MR) or particle number densities (ND, default)'
-  WRITE(1,*) 'ND'
-  WRITE(1,*) ''
-  WRITE(1,*) '#Element abundance file'
-  WRITE(1,*) 'input/element_abundances_solar.dat'
-  WRITE(1,*) ''
-  WRITE(1,*) '#Species data file'
-  WRITE(1,*) 'input/'//TRIM(fname_species)
-  WRITE(1,*) ''
-  WRITE(1,*) '#Accuracy of chemistry iteration'
-  WRITE(1,*) '1.0e-4'
-  WRITE(1,*) ''
-  WRITE(1,*) '#Max number of chemistry iterations'
-  WRITE(1,*) '80000'
-  WRITE(1,*) ''
-  WRITE(1,*) '#Max number internal solver iterations'
-  WRITE(1,*) '20000'
-  WRITE(1,*) ''
+  IF (has_master_logk) THEN
+     WRITE(1,*) '#Chemistry calculation type (gas phase only = g, equilibrium condensation = ce, rainout condensation = cr)'
+     WRITE(1,*) 'g'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Chemistry output file'
+     WRITE(1,*) 'output/'//TRIM(fname_output)//' output/condensates.dat'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Monitor output file'
+     WRITE(1,*) 'output/'//TRIM(fname_output_monitor)
+     WRITE(1,*) ''
+     WRITE(1,*) '#FastChem console verbose level (1 - 4); 1 = almost silent, 4 = detailed console output'
+     WRITE(1,*) '4'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Output mixing ratios (MR) or particle number densities (ND, default)'
+     WRITE(1,*) 'ND'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Element abundance file'
+     WRITE(1,*) 'input/element_abundances/asplund_2009.dat'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Species data files'
+     WRITE(1,*) 'input/logK/logK.dat input/logK/logK_condensates.dat'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Accuracy of chemistry iteration'
+     WRITE(1,*) '1.0e-4'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Accuracy of element conservation'
+     WRITE(1,*) '1.0e-4'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Max number of chemistry iterations'
+     WRITE(1,*) '80000'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Max number internal solver iterations'
+     WRITE(1,*) '20000'
+     WRITE(1,*) ''
+  ELSE
+     WRITE(1,*) '#Chemistry output file'
+     WRITE(1,*) 'output/'//TRIM(fname_output)
+     WRITE(1,*) ''
+     WRITE(1,*) '#Monitor output file'
+     WRITE(1,*) 'output/'//TRIM(fname_output_monitor)
+     WRITE(1,*) ''
+     WRITE(1,*) '#FastChem console verbose level (1 - 4); 1 = almost silent, 4 = detailed console output'
+     WRITE(1,*) '4'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Output mixing ratios (MR) or particle number densities (ND, default)'
+     WRITE(1,*) 'ND'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Element abundance file'
+     WRITE(1,*) 'input/element_abundances_solar.dat'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Species data file'
+     WRITE(1,*) 'input/'//TRIM(fname_species)
+     WRITE(1,*) ''
+     WRITE(1,*) '#Accuracy of chemistry iteration'
+     WRITE(1,*) '1.0e-4'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Max number of chemistry iterations'
+     WRITE(1,*) '80000'
+     WRITE(1,*) ''
+     WRITE(1,*) '#Max number internal solver iterations'
+     WRITE(1,*) '20000'
+     WRITE(1,*) ''
+  END IF
   CLOSE(1)
 
   PRINT *, 'profile input file:', TRIM(fname_tpgrid)
@@ -148,7 +200,7 @@ PROGRAM prep_FastChem
   PRINT *, 'species data file:', TRIM(fname_species)
   PRINT *, 'lnK directory:', TRIM(dname_lnK)
 
-  OPEN(2,FILE=FASTCHEM_INPUT_DIR//TRIM(fname_species), RECL=max_line_len)
+  OPEN(2,FILE=FASTCHEM_INPUT_DIR//TRIM(fname_species), STATUS='REPLACE', ACTION='WRITE', RECL=max_line_len)
   WRITE(2,*) '#'
   WRITE(2,*) '#'
   WRITE(2,*) '#'
@@ -156,7 +208,7 @@ PROGRAM prep_FastChem
   
 #ifdef FASTCHEM_ORIGINAL
   PRINT *, 'molecule lnK'
-  OPEN(1, FILE=FASTCHEM_INPUT_DIR//'logK_ext.dat', STATUS='OLD', RECL=max_line_len)
+  OPEN(1, FILE=TRIM(source_logk_file), STATUS='OLD', RECL=max_line_len)
   READ(1,*)!HEADER
   READ(1,*)!HEADER
   READ(1,*)!HEADER
@@ -166,7 +218,7 @@ PROGRAM prep_FastChem
      species = linebuf(1:INDEX(linebuf,' ')-1)
      READ(1,*) a1, a2, a3, a4, a5
 !     PRINT *, TRIM(species)
-     READ(1,*)
+     READ(1,*,IOSTAT=iostat)
 
      fname = TRIM(dname_lnK)//'/'//TRIM(species)//'.dat'
 #ifdef ATOMIC_IONS
@@ -176,7 +228,7 @@ PROGRAM prep_FastChem
      WRITE(2,*) 'f input/'//TRIM(fname)
      WRITE(2,*) ' '
      
-     OPEN(3, FILE=FASTCHEM_INPUT_DIR//TRIM(fname), RECL=max_line_len)
+     OPEN(3, FILE=FASTCHEM_INPUT_DIR//TRIM(fname), STATUS='REPLACE', ACTION='WRITE', RECL=max_line_len)
      WRITE(3,*) DBLE(tmp_min), DBLE(dtmp), ' log'
      DO l = 1, lmax
         lnK = a1/tmp(l) + a2*LOG(tmp(l)) + a3 + a4*tmp(l) + a5*tmp(l)**2
@@ -239,8 +291,8 @@ PROGRAM prep_FastChem
         WRITE(2,*) TRIM(celem(na))//'1'//csign//TRIM(cnib)//' '//TRIM(celem(na))//'_Ion : '//celem(na)//' 1 e- '//cnia//' #'
         WRITE(2,*) 'f input/'//fname
         WRITE(2,*) ' '
-        OPEN(1, FILE=FASTCHEM_INPUT_DIR//fname, RECL=max_line_len)
-        OPEN(3, FILE=FASTCHEM_INPUT_DIR//fname_pf, RECL=max_line_len)
+        OPEN(1, FILE=FASTCHEM_INPUT_DIR//fname, STATUS='REPLACE', ACTION='WRITE', RECL=max_line_len)
+        OPEN(3, FILE=FASTCHEM_INPUT_DIR//fname_pf, STATUS='REPLACE', ACTION='WRITE', RECL=max_line_len)
         WRITE(1,*) DBLE(tmp_min), DBLE(dtmp), ' log'
         DO l = 1, lmax
            kt = k_bol * tmp(l)
